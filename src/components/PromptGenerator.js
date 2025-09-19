@@ -210,42 +210,25 @@ const PromptGenerator = () => {
   const optimizePrompt = async () => {
     setIsOptimizing(true);
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
+      const response = await fetch('/api/optimize', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [
-            {
-              role: "user",
-              content: `Please optimize this AI prompt for clarity, effectiveness, and completeness. Make it more specific, actionable, and well-structured while maintaining the original intent:
-
-ORIGINAL PROMPT:
-${responses.finalPrompt}
-
-OPTIMIZATION GUIDELINES:
-- Enhance clarity and specificity
-- Improve structure and organization
-- Add any missing important elements
-- Make instructions more actionable
-- Ensure proper formatting
-- Maintain the original core intent and requirements
-
-Provide only the optimized prompt as your response, without any explanation or commentary.`
-            }
-          ]
+          prompt: responses.finalPrompt
         })
       });
 
+      if (!response.ok) {
+        throw new Error('Failed to optimize prompt');
+      }
+
       const data = await response.json();
-      const optimizedPrompt = data.content[0].text;
       
       setResponses(prev => ({
         ...prev,
-        optimizedPrompt: optimizedPrompt
+        optimizedPrompt: data.optimizedPrompt
       }));
       setShowOptimized(true);
     } catch (error) {
